@@ -29,10 +29,26 @@ pip install agentloop
 ```
 
 
-# API Documentation
+# Usage
 
-This API provides a set of functions to perform a stepped or continuous loop of operations in a separate thread. This can be used for various purposes like running a continuous process that can be controlled from the outside, a debugging tool for a cycle of operations, etc.
+This package provides a set of functions to perform a stepped or continuous loop of operations in a separate thread. This can be used for various purposes like running a continuous process that can be controlled from the outside, a debugging tool for a cycle of operations, etc.
 
+## Steps
+
+Each step must take in input from the last step and return output for the next step. The first step will receive None as input, and this will need to be handled. You can either start with an initialization step that returns the initial input, or you can check for None in the first step and return the initial input if it is None.
+
+Example steps:
+```python
+def step_one(next_output): # next output None first run, then received from step_two
+    print("step_one")
+    return next_output # next output sent to step_two
+
+def step_two(next_output): # next output received from step_one
+    print("step_two")
+    return next_output # next output sent to step_one
+
+steps = [step_one, step_two]
+```
 
 ## Function `start`
 

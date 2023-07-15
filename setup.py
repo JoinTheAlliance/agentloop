@@ -1,28 +1,28 @@
 from setuptools import setup
 
-long_description = ""
+readme = ""
 with open("README.md", "r") as fh:
-    long_description = fh.read()
+    readme = fh.read()
     # search for any lines that contain <img and remove them
-    long_description = long_description.split('\n')
-    long_description = [line for line in long_description if not '<img' in line]
+    readme = readme.split('\n')
+    readme = [line for line in readme if '<img' not in line]
     # now join all the lines back together
-    long_description = '\n'.join(long_description)
-    
+    readme = '\n'.join(readme)
+
 
 setup(
     name='agentloop',
     version='0.1.0',
-    description='A simple, lightweight loop for your agent. Start/stop, step-through, and more.',
-    long_description=long_description,  # added this line
+    description='A simple, lightweight loop for your agent.',
+    long_description=readme,  # added this line
     long_description_content_type="text/markdown",  # and this line
     url='https://github.com/AutonomousResearchGroup/agentloop',
     author='Moon',
     author_email='shawmakesmagic@gmail.com',
     license='MIT',
     packages=['agentloop'],
-    install_requires=[''],
-    readme = "README.md",
+    install_requires=['pynput'],
+    readme="README.md",
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Science/Research',

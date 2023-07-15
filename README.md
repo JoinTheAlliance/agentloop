@@ -162,11 +162,11 @@ Creates a keyboard listener and attaches it to the provided loop data object. Th
 Returns the updated loop dictionary with the newly created keyboard listener added to it.
 Note: Pass the updated dictionary to the stop function to also stop the keyboard listener
 
+Defaults to Spacebar
+
 ### Example
 
 ```python
-from pynput import keyboard
-
 loop_data = {
     "stop_event": threading.Event(),
     "step_event": threading.Event(),
@@ -174,7 +174,7 @@ loop_data = {
     "thread": None,
 }
 
-updated_loop_dict = use_keyboard(loop_data, input_key=keyboard.Key.space)
+updated_loop_dict = use_keyboard(loop_data, input_key)
 ```
 
 # Publishing

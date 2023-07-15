@@ -6,19 +6,21 @@ A simple, lightweight loop for your agent. Start/stop, step-through, and more.
 
 # Quickstart
 ```python
-    def step_one(next_output):
-        print("step_one")
-        return next_output
+from agentloop import start, stop
 
-    def step_two(next_output):
-        print("step_two")
-        return next_output
+def step_one(next_output):
+    print("step_one")
+    return next_output
 
-    # Run the loop
-    loop_dict = start(steps=[step_one, step_two]) 
+def step_two(next_output):
+    print("step_two")
+    return next_output
 
-    # Stop the loop
-    stop(loop_dict)
+# Run the loop
+loop_dict = start(steps=[step_one, step_two]) 
+
+# Stop the loop
+stop(loop_dict)
 ```
 
 
@@ -47,7 +49,7 @@ def step_two(next_output): # next output received from step_one
     print("step_two")
     return next_output # next output sent to step_one
 
-steps = [step_one, step_two]
+steps = [step_one, step_two]g
 ```
 
 ## Function `start`

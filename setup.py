@@ -24,10 +24,10 @@ setup(
     install_requires=['pynput'],
     readme="README.md",
     classifiers=[
-        'Development Status :: 2 - Pre-Alpha',
+        'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Science/Research',
-        'License :: OSI Approved :: MIT License',  
-        'Operating System :: POSIX :: Linux',        
+        'License :: OSI Approved :: MIT License',
+        'Operating System :: POSIX :: Linux',
         'Programming Language :: Python :: 3',
         'Operating System :: MacOS :: MacOS X',
         'Operating System :: Microsoft :: Windows'

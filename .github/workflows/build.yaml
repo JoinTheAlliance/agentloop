@@ -110,12 +110,12 @@ jobs:
         run: |
           twine upload -r testpypi dist/*
         env:
-          TWINE_USERNAME: __token__
+          TWINE_USERNAME: secrets.test_pypi_username
           TWINE_PASSWORD: ${{ secrets.test_pypi_password }}
 
       - name: Publish distribution 📦 to PyPI
         run: |
           twine upload -r pypi dist/*
         env:
-          TWINE_USERNAME: __token__
+          TWINE_USERNAME: secrets.pypi_username
           TWINE_PASSWORD: ${{ secrets.pypi_password }}

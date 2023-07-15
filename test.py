@@ -8,7 +8,7 @@ from agentloop import (
 )
 
 
-def step_one(options_dict):
+def step_one(options_dict, loop_data):
     if options_dict is None:
         options_dict = {
             "step_one": 0,
@@ -51,9 +51,3 @@ def test_start_stepped():
         time.sleep(.1)
     stop(loop_data)  # Stop the loop
     assert loop_data["thread"].is_alive() is False
-
-
-if __name__ == "__main__":
-    test_start_stepped()
-    test_start()
-    print("Tests successful")

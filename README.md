@@ -177,6 +177,11 @@ loop_data = {
 updated_loop_dict = use_keyboard(loop_data, input_key)
 ```
 
+# Testing
+```
+pytest test.py
+```
+
 # Publishing
 
 ```bash

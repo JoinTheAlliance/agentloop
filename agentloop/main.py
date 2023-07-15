@@ -1,4 +1,5 @@
 import threading
+
 from pynput import keyboard
 
 
@@ -44,7 +45,7 @@ def start(steps, stepped=False):
     loop_data = {
         "stop_event": threading.Event(),
         "step_event": threading.Event(),
-        "started_event": threading.Event()
+        "started_event": threading.Event(),
     }
 
     thread = threading.Thread(target=loop, args=(steps, stepped, loop_data))
@@ -71,7 +72,7 @@ def loop(steps, stepped=False, loop_data=None):
         loop_data = {
             "stop_event": threading.Event(),
             "step_event": threading.Event(),
-            "started_event": threading.Event()
+            "started_event": threading.Event(),
         }
 
     next_output = None
@@ -118,6 +119,7 @@ def use_keyboard(loop_data, input_key=keyboard.Key.space):
     def on_press(key):
         if key == input_key:
             loop_data["step_event"].set()
+
     listener = None
     listener = keyboard.Listener(on_press=on_press)
     listener.start()

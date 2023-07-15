@@ -1,19 +1,12 @@
-import time
 import threading
+import time
 
-from agentloop import (
-    start,
-    stop,
-    step,
-)
+from agentloop import start, step, stop
 
 
 def step_one(options_dict, loop_data):
     if options_dict is None:
-        options_dict = {
-            "step_one": 0,
-            "step_two": 0
-        }
+        options_dict = {"step_one": 0, "step_two": 0}
     # increment step_one
     options_dict["step_one"] += 1
     print("step_one: ", options_dict["step_one"])
@@ -29,7 +22,7 @@ def step_two(options_dict, loop_data):
 
 def test_start():
     print("Starting test_start")
-    loop_data = start(steps=[step_one, step_two], stepped=False) 
+    loop_data = start(steps=[step_one, step_two], stepped=False)
 
     assert isinstance(loop_data["thread"], threading.Thread)
     assert isinstance(loop_data["step_event"], threading.Event)
@@ -48,6 +41,6 @@ def test_start_stepped():
     for _ in range(5):
         step(loop_data)
         # sleep 1 s
-        time.sleep(.1)
+        time.sleep(0.1)
     stop(loop_data)  # Stop the loop
     assert loop_data["thread"].is_alive() is False

@@ -8,11 +8,7 @@ __version__ = "0.1.0"
 __author__ = "Autonomous Research Group"
 __credits__ = "https://github.com/AutonomousResearchGroup/agentloop"
 
-from .main import (
-    start,
-    stop,
-    step,
-)
+from .main import start, step, stop
 
 __all__ = [
     "start",

@@ -1,33 +1,32 @@
 import threading
-import threading
-
 from pynput import keyboard
 
 
-def stop(loop_dict):
+def stop(loop_data):
     """
     Function to handle stopping of the loop
-    Args:
-        loop_dict: a dictionary containing the stop event and the listener hich is created by the start function
+        loop_data: a dictionary containing threading events related to the loop
+            (You should pass in the object created by the start function)
     """
 
-    listener = loop_dict["listener"]
-    stop_event = loop_dict["stop_event"]
+    listener = loop_data.get("listener", None)
+    stop_event = loop_data["stop_event"]
     stop_event.set()
     if listener is not None and listener.running:
         listener.stop()
-    loop_dict["thread"].join(timeout=10)
+    loop_data["thread"].join(timeout=10)
 
-def step(loop_dict):
+
+def step(loop_data):
     """
     Function to perform a single step in the loop
 
     Args:
-        loop_dict: a dictionary containing the stop event and the listener hich is created by the start function
+        loop_data: loop data object, created by the start function
 
     This function does not return any value.
     """
-    loop_dict["step_event"].set()
+    loop_data["step_event"].set()
 
 
 def start(steps, stepped=False):
@@ -35,69 +34,92 @@ def start(steps, stepped=False):
     Function to start the main loop
 
     Args:
-        stepped: a boolean value that determines whether the loop should run in stepped mode or not. Defaults to False.
+        stepped: boolean - whether the loop should run one-step-at-a-time.
+            Defaults to False.
 
     Returns:
-        thread, step_event: an instance of threading.Thread that's running the main loop and the event that's used to control stepping.
+        loop_data: a dictionary of loop data
     """
 
-    loop_dict = {
+    loop_data = {
         "stop_event": threading.Event(),
         "step_event": threading.Event(),
         "started_event": threading.Event()
     }
 
-    def on_press(key):
-        if key == keyboard.Key.space:
-            loop_dict["step_event"].set()
-    
-    listener = None
-    if stepped:
-        listener = keyboard.Listener(on_press=on_press)
-        listener.start()
-    
-    loop_dict["listener"] = listener
-
-    thread = threading.Thread(target=loop, args=(steps, stepped, loop_dict))
-    loop_dict["thread"] = thread
+    thread = threading.Thread(target=loop, args=(steps, stepped, loop_data))
+    loop_data["thread"] = thread
 
     thread.start()
-    loop_dict["started_event"].wait()  # Wait here until loop is started
+    loop_data["started_event"].wait()  # Wait here until loop is started
 
-    return loop_dict
+    return loop_data
 
 
-def loop(steps, stepped=False, loop_dict=None):
+def loop(steps, stepped=False, loop_data=None):
     """
-    The main loop of the application, running the observe, orient, decide, act cycle until stop event is set
+    Run the step array in a loop until stopped
 
     Args:
-        stepped: a boolean value that determines whether the loop should run in stepped mode or not
-        stop_event: an instance of threading.Event that's used to control stopping of the loop
-        step_event: an instance of threading.Event that's used to control stepping
+        steps: array of functions to be run in the loop
+        stepped: boolean - whether the loop should run in stepped mode or not
+        loop_data: loop data object, created by the start function
 
     This function does not return any value.
     """
-    if loop_dict is None:
-        loop_dict = {
+    if loop_data is None:
+        loop_data = {
             "stop_event": threading.Event(),
             "step_event": threading.Event(),
             "started_event": threading.Event()
         }
 
     next_output = None
-    loop_dict["started_event"].set()  # Indicate that the loop has started
-    while not loop_dict["stop_event"].is_set():
+    loop_data["started_event"].set()  # Indicate that the loop has started
+    while not loop_data["stop_event"].is_set():
         for step in steps:
-            next_output = step(next_output)
+            # check how many arguments step takes, 1 or 2?
+            number_of_args = step.__code__.co_argcount
+            if number_of_args == 1:
+                next_output = step(next_output)
+            elif number_of_args == 2:
+                next_output = step(next_output, loop_data)
+            else:
+                raise ValueError(
+                    "Step function must take 1 or 2 arguments"
+                    "Valid arguments are next_output, loop_data (optional)"
+                    "Found {} arguments".format(number_of_args)
+                )
             if stepped:
-                while not loop_dict["step_event"].wait(
-                    timeout=1
-                ):  # Wait here until step_event is set
-                    if loop_dict["stop_event"].is_set():  # Check if stop event has been set
-                        break  # Break out of for loop
-                if loop_dict["stop_event"].is_set():  # Check if stop event has been set
-                    break  # Break out of for loop
-                loop_dict["step_event"].clear()  # Clear the step_event
-        if loop_dict["stop_event"].is_set():  # Check if stop event has been set
-            break  # Break out of while loop
+                # Wait here until step_event is set
+                while not loop_data["step_event"].wait(timeout=1):
+                    if loop_data["stop_event"].is_set():
+                        break
+                if loop_data["stop_event"].is_set():
+                    break
+                loop_data["step_event"].clear()
+        if loop_data["stop_event"].is_set():
+            break
+
+
+def use_keyboard(loop_data, input_key=keyboard.Key.space):
+    """
+    Listen for a specified key press, and when detected, step the loop
+
+    Args:
+        loop_data: loop data object, created by the start function
+        input_key: The keyboard key which the listener will react to
+            Defaults to keyboard.Key.space
+
+    Returns:
+        loop_data: The updated loop dictionary with the newly created listener
+    """
+
+    def on_press(key):
+        if key == input_key:
+            loop_data["step_event"].set()
+    listener = None
+    listener = keyboard.Listener(on_press=on_press)
+    listener.start()
+    loop_data["listener"] = listener
+    return loop_data

@@ -5,31 +5,30 @@ A simple, lightweight loop for your agent. Start/stop, step-through, and more.
 <img src="resources/image.jpg">
 
 # Quickstart
+
 ```python
 from agentloop import start, stop
 
-def step_one(next_output):
+def step_one(next_output, loop_data):
     print("step_one")
     return next_output
 
-def step_two(next_output):
+def step_two(next_output, loop_data):
     print("step_two")
     return next_output
 
 # Run the loop
-loop_dict = start(steps=[step_one, step_two]) 
+loop_data = start(steps=[step_one, step_two])
 
 # Stop the loop
-stop(loop_dict)
+stop(loop_data)
 ```
-
 
 # Installation
 
 ```bash
 pip install agentloop
 ```
-
 
 # Usage
 
@@ -40,16 +39,17 @@ This package provides a set of functions to perform a stepped or continuous loop
 Each step must take in input from the last step and return output for the next step. The first step will receive None as input, and this will need to be handled. You can either start with an initialization step that returns the initial input, or you can check for None in the first step and return the initial input if it is None.
 
 Example steps:
+
 ```python
-def step_one(next_output): # next output None first run, then received from step_two
+def step_one(next_output, loop_data): # next output None first run, then received from step_two
     print("step_one")
     return next_output # next output sent to step_two
 
-def step_two(next_output): # next output received from step_one
+def step_two(next_output, loop_data): # next output received from step_one
     print("step_two")
     return next_output # next output sent to step_one
 
-steps = [step_one, step_two]g
+steps = [step_one, step_two]
 ```
 
 ## Function `start`
@@ -58,31 +58,43 @@ steps = [step_one, step_two]g
 start(steps, stepped=False)
 ```
 
+### Description
+
+Starts the main loop in a separate thread. This loop will run the steps given, in a continuous or stepped manner.
+
 ### Parameters
+
 - `steps` : a list of functions that should be executed in the loop. Each function should accept a single argument and return a single value which will be passed as an argument to the next function. The first function will receive `None` as an argument.
 
 - `stepped` (optional): a boolean value that determines whether the loop should run in stepped mode or not. Defaults to `False`.
 
 ### Returns
+
 A dictionary containing
-- `thread`: an instance of `threading.Thread` that's running the main loop.
+
 - `stop_event`: an instance of `threading.Event` that's used to control stopping of the loop.
 - `step_event`: an instance of `threading.Event` that's used to control stepping.
-- `listener`: an instance of `keyboard.Listener` that's used to control stepping via spacebar.
 - `started_event`: an instance of `threading.Event` that's set when the loop starts running.
+- `thread`: an instance of `threading.Thread` that's running the main loop.
 
 ---
 
 ## Function `stop`
 
 ```python
-stop(loop_dict)
+stop(loop_data)
 ```
 
+### Description
+
+Handles stopping of the loop.
+
 ### Parameters
-- `loop_dict`: a dictionary containing the `thread`, `stop_event`, `listener` which is returned by the `start` function.
+
+- `loop_data`: a dictionary containing the `stop_event` and `thread` which is returned by the `start` function.
 
 ### Returns
+
 None
 
 ---
@@ -90,13 +102,19 @@ None
 ## Function `step`
 
 ```python
-step(loop_dict)
+step(loop_data)
 ```
 
+### Description
+
+Performs a single step in the loop.
+
 ### Parameters
-- `loop_dict`: a dictionary containing the `thread`, `stop_event`, `step_event` which is returned by the `start` function.
+
+- `loop_data`: a dictionary containing the `step_event` which is returned by the `start` function.
 
 ### Returns
+
 None
 
 ---
@@ -104,24 +122,66 @@ None
 ## Function `loop`
 
 ```python
-loop(steps, stepped=False, loop_dict=None)
+loop(steps, stepped=False, loop_data=None)
 ```
 
+### Description
+
+Runs the step array in a loop until stopped.
+
 ### Parameters
+
 - `steps`: a list of functions that should be executed in the loop. Each function should accept a single argument and return a single value which will be passed as an argument to the next function. The first function will receive `None` as an argument.
 
 - `stepped` (optional): a boolean value that determines whether the loop should run in stepped mode or not. Defaults to `False`.
 
-- `loop_dict` (optional): a dictionary containing `stop_event` and `step_event` instances. If not provided, new events will be created.
+- `loop_data` (optional): a dictionary containing `stop_event` and `step_event` instances. If not provided, new events will be created.
 
 ### Returns
+
 None
+
+## Function `use_keyboard`
+
+```python
+use_keyboard(loop_data, input_key=keyboard.Key.space)
+```
+
+### Description
+
+Creates a keyboard listener and attaches it to the provided loop data object. This listener listens for a specified key press, and when detected, steps the loop (sets the 'step_event').
+
+### Parameters
+
+- `loop_data`: A loop data object, which is typically created by the `start` function.
+
+- `input_key` (optional): The keyboard key that the listener will react to. Defaults to `keyboard.Key.space`.
+
+### Returns
+
+Returns the updated loop dictionary with the newly created keyboard listener added to it.
+Note: Pass the updated dictionary to the stop function to also stop the keyboard listener
+
+### Example
+
+```python
+from pynput import keyboard
+
+loop_data = {
+    "stop_event": threading.Event(),
+    "step_event": threading.Event(),
+    "started_event": threading.Event(),
+    "thread": None,
+}
+
+updated_loop_dict = use_keyboard(loop_data, input_key=keyboard.Key.space)
+```
 
 # Publishing
 
 ```bash
 bash publish.sh --version=<version> --username=<pypi_username> --password=<pypi_password>
-````
+```
 
 # Contributions Welcome
 

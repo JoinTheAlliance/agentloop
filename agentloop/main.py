@@ -1,7 +1,5 @@
 import threading
 
-from pynput import keyboard
-
 
 def stop(loop_data):
     """
@@ -103,7 +101,7 @@ def loop(steps, stepped=False, loop_data=None):
             break
 
 
-def use_keyboard(loop_data, input_key=keyboard.Key.space):
+def use_keyboard(loop_data, input_key=None):
     """
     Listen for a specified key press, and when detected, step the loop
 
@@ -115,6 +113,17 @@ def use_keyboard(loop_data, input_key=keyboard.Key.space):
     Returns:
         loop_data: The updated loop dictionary with the newly created listener
     """
+    keyboard = None
+    try:
+        from pynput import keyboard as _keyboard
+        keyboard = _keyboard
+    except ImportError:
+        raise ImportError(
+            "pynput not installed. Please install it with `pip install pynput`"
+        )
+
+    if input_key is None:
+        input_key = keyboard.Key.space
 
     def on_press(key):
         if key == input_key:

@@ -1,33 +1,6 @@
 import threading
 
 
-def stop(loop_data):
-    """
-    Function to handle stopping of the loop
-        loop_data: a dictionary containing threading events related to the loop
-            (You should pass in the object created by the start function)
-    """
-
-    listener = loop_data.get("listener", None)
-    stop_event = loop_data["stop_event"]
-    stop_event.set()
-    if listener is not None and listener.running:
-        listener.stop()
-    loop_data["thread"].join(timeout=10)
-
-
-def step(loop_data):
-    """
-    Function to perform a single step in the loop
-
-    Args:
-        loop_data: loop data object, created by the start function
-
-    This function does not return any value.
-    """
-    loop_data["step_event"].set()
-
-
 def start(steps, stepped=False):
     """
     Function to start the main loop
@@ -53,6 +26,33 @@ def start(steps, stepped=False):
     loop_data["started_event"].wait()  # Wait here until loop is started
 
     return loop_data
+
+
+def stop(loop_data):
+    """
+    Function to handle stopping of the loop
+        loop_data: a dictionary containing threading events related to the loop
+            (You should pass in the object created by the start function)
+    """
+
+    listener = loop_data.get("listener", None)
+    stop_event = loop_data["stop_event"]
+    stop_event.set()
+    if listener is not None and listener.running:
+        listener.stop()
+    loop_data["thread"].join(timeout=10)
+
+
+def step(loop_data):
+    """
+    Function to perform a single step in the loop
+
+    Args:
+        loop_data: loop data object, created by the start function
+
+    This function does not return any value.
+    """
+    loop_data["step_event"].set()
 
 
 def loop(steps, stepped=False, loop_data=None):
@@ -101,36 +101,3 @@ def loop(steps, stepped=False, loop_data=None):
             break
 
 
-def use_keyboard(loop_data, input_key=None):
-    """
-    Listen for a specified key press, and when detected, step the loop
-
-    Args:
-        loop_data: loop data object, created by the start function
-        input_key: The keyboard key which the listener will react to
-            Defaults to keyboard.Key.space
-
-    Returns:
-        loop_data: The updated loop dictionary with the newly created listener
-    """
-    keyboard = None
-    try:
-        from pynput import keyboard as _keyboard
-        keyboard = _keyboard
-    except ImportError:
-        raise ImportError(
-            "pynput not installed. Please install it with `pip install pynput`"
-        )
-
-    if input_key is None:
-        input_key = keyboard.Key.space
-
-    def on_press(key):
-        if key == input_key:
-            loop_data["step_event"].set()
-
-    listener = None
-    listener = keyboard.Listener(on_press=on_press)
-    listener.start()
-    loop_data["listener"] = listener
-    return loop_data

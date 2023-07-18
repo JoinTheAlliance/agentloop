@@ -40,6 +40,10 @@ def stop(loop_data):
     stop_event.set()
     if listener is not None and listener.running:
         listener.stop()
+    try:
+        loop_data["thread"].join(timeout=10)
+    except RuntimeError:
+        pass
 
 
 def step(loop_data):

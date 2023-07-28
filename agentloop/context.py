@@ -35,22 +35,3 @@ def create_context_builders(context_dir):
         return context
 
     return build_context
-
-
-def create_default_context(context={}):
-    """
-    Create a default context object
-
-    Args:
-        context: the last context made by the loop. Defaults to None.
-
-    Returns:
-        context: a dictionary containing the current context
-    """
-    if context is None:
-        context = {}
-    context["current_time"] = datetime.now().strftime("%H:%M")
-    context["current_date"] = datetime.now().strftime("%Y-%m-%d")
-    context["platform"] = sys.platform
-    context["cwd"] = os.getcwd()
-    return context

@@ -1,4 +1,6 @@
-def step_with_input_key(loop_data, input_key=None):
+from .loop import stop
+
+def step_with_input_key(loop_data):
     """
     Listen for a specified key press, and when detected, step the loop
 
@@ -19,11 +21,17 @@ def step_with_input_key(loop_data, input_key=None):
             "pynput not installed. Please install it with `pip install pynput`"
         )
 
-    if input_key is None:
-        input_key = keyboard.Key.space
+    input_key = keyboard.Key.space
+
+    quit_key = "q"
 
     def on_press(key):
-        if key == input_key:
+        # check if key includes the quit key
+        if hasattr(key, "char") and key.char == quit_key:
+            print("Quitting...")
+            stop(loop_data)
+        elif key == input_key:
+            print("Stepping...")
             loop_data["step_event"].set()
 
     listener = None

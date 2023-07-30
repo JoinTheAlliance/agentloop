@@ -1,12 +1,12 @@
 import threading
 
 
-def start(steps, stepped=False):
+def start(steps, paused=False):
     """
     Function to start the main loop
 
     Args:
-        stepped: boolean - whether the loop should run one-step-at-a-time.
+        paused: boolean - whether the loop should run automatically. If paused can be stepped one-step-at-a-time.
             Defaults to False.
 
     Returns:
@@ -17,9 +17,13 @@ def start(steps, stepped=False):
         "stop_event": threading.Event(),
         "step_event": threading.Event(),
         "started_event": threading.Event(),
+        "pause_event": threading.Event(),
     }
 
-    thread = threading.Thread(target=loop, args=(steps, stepped, loop_data))
+    if paused:
+        loop_data["pause_event"].set()
+
+    thread = threading.Thread(target=loop, args=(steps, loop_data))
     loop_data["thread"] = thread
 
     thread.start()
@@ -58,29 +62,45 @@ def step(loop_data):
     loop_data["step_event"].set()
 
 
-def loop(steps, stepped=False, loop_data=None):
+def pause(loop_data):
+    """
+    Function to pause the loop
+
+    Args:
+        loop_data: loop data object, created by the start function
+
+    This function does not return any value.
+    """
+    loop_data["pause_event"].set()
+
+
+def unpause(loop_data):
+    """
+    Function to unpause the loop
+
+    Args:
+        loop_data: loop data object, created by the start function
+
+    This function does not return any value.
+    """
+    loop_data["pause_event"].clear()
+
+
+def loop(steps, loop_data):
     """
     Run the step array in a loop until stopped
 
     Args:
         steps: array of functions to be run in the loop
-        stepped: boolean - whether the loop should run in stepped mode or not
+        paused: boolean - whether the loop should run start up paused (can be stepped) or running
         loop_data: loop data object, created by the start function
 
     This function does not return any value.
     """
-    if loop_data is None:
-        loop_data = {
-            "stop_event": threading.Event(),
-            "step_event": threading.Event(),
-            "started_event": threading.Event(),
-        }
-
     next_output = None
     loop_data["started_event"].set()  # Indicate that the loop has started
     while not loop_data["stop_event"].is_set():
         for step in steps:
-            # check how many arguments step takes, 1 or 2?
             number_of_args = step.__code__.co_argcount
             if number_of_args == 1:
                 next_output = step(next_output)
@@ -88,19 +108,17 @@ def loop(steps, stepped=False, loop_data=None):
                 next_output = step(next_output, loop_data)
             else:
                 raise ValueError(
-                    "Step function must take 1 or 2 arguments"
-                    "Valid arguments are next_output, loop_data (optional)"
+                    "Step function must take 1 or 2 arguments. "
+                    "Valid arguments are next_output, loop_data (optional). "
                     "Found {} arguments".format(number_of_args)
                 )
-            if stepped:
-                # Wait here until step_event is set
-                while not loop_data["step_event"].wait(timeout=1):
-                    if loop_data["stop_event"].is_set():
-                        break
-                if loop_data["stop_event"].is_set():
-                    break
+
+            while loop_data["pause_event"].is_set():
+                print("Loop paused")
+                if loop_data["stop_event"].wait(timeout=1):
+                    return
+            if loop_data["step_event"].wait(timeout=1):
                 loop_data["step_event"].clear()
         if loop_data["stop_event"].is_set():
             break
-
 

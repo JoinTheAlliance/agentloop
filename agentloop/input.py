@@ -1,4 +1,4 @@
-from .loop import stop
+from agentloop.loop import stop
 
 def step_with_input_key(loop_data):
     """

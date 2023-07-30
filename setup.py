@@ -12,7 +12,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="agentloop",
-    version="0.1.5",
+    version="0.2.0",
     description="A simple, lightweight loop for your agent.",
     long_description=readme,  # added this line
     long_description_content_type="text/markdown",  # and this line

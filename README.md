@@ -23,6 +23,12 @@ def step_two(next_output, loop_data):
 # Run the loop
 loop_data = start(steps=[step_one, step_two])
 
+# Pause the loop
+pause(loop_data)
+
+# Unpause the loop
+unpause(loop_data)
+
 # Stop the loop
 stop(loop_data)
 ```
@@ -101,6 +107,48 @@ Handles stopping of the loop.
 None
 
 ---
+
+Sure, here are the updated sections for the `pause` and `unpause` functions in your README file.
+
+---
+
+## Function `pause`
+
+```python
+pause(loop_data)
+```
+
+### Description
+
+Pauses the loop. When paused, the loop will not execute the next step until it's either stepped using the `step` function or unpaused using the `unpause` function.
+
+### Parameters
+
+- `loop_data`: a dictionary containing the `pause_event` which is returned by the `start` function.
+
+### Returns
+
+None
+
+---
+
+## Function `unpause`
+
+```python
+unpause(loop_data)
+```
+
+### Description
+
+Resumes the loop after it has been paused with the `pause` function. If the loop is not paused, calling this function has no effect.
+
+### Parameters
+
+- `loop_data`: a dictionary containing the `pause_event` which is returned by the `start` function.
+
+### Returns
+
+None
 
 ## Function `step`
 

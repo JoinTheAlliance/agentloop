@@ -114,7 +114,6 @@ def loop(steps, loop_data):
                 )
 
             while loop_data["pause_event"].is_set():
-                print("Loop paused")
                 if loop_data["stop_event"].wait(timeout=1):
                     return
             if loop_data["step_event"].wait(timeout=1):

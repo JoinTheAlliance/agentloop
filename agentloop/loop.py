@@ -1,7 +1,7 @@
 import threading
 
 
-def start(steps, paused=False):
+def start(steps, paused=False, step_interval=0.0):
     """
     Function to start the main loop
 
@@ -23,7 +23,7 @@ def start(steps, paused=False):
     if paused:
         loop_data["pause_event"].set()
 
-    thread = threading.Thread(target=loop, args=(steps, loop_data))
+    thread = threading.Thread(target=loop, args=(steps, loop_data, step_interval))
     loop_data["thread"] = thread
 
     thread.start()
@@ -86,7 +86,7 @@ def unpause(loop_data):
     loop_data["pause_event"].clear()
 
 
-def loop(steps, loop_data):
+def loop(steps, loop_data, step_interval=0.0):
     """
     Run the step array in a loop until stopped
 
@@ -94,12 +94,15 @@ def loop(steps, loop_data):
         steps: array of functions to be run in the loop
         paused: boolean - whether the loop should run start up paused (can be stepped) or running
         loop_data: loop data object, created by the start function
+        step_interval: float - time in seconds to wait between steps. Defaults to 0.0 (no wait)
 
     This function does not return any value.
     """
     next_output = None
     loop_data["started_event"].set()  # Indicate that the loop has started
     while not loop_data["stop_event"].is_set():
+        if step_interval > 0:
+            loop_data["stop_event"].wait(timeout=step_interval)
         for step in steps:
             number_of_args = step.__code__.co_argcount
             if number_of_args == 1:

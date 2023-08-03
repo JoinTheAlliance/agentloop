@@ -64,7 +64,7 @@ steps = [step_one, step_two]
 ## Function `start`
 
 ```python
-start(steps, stepped=False)
+start(steps, stepped=False, step_interval=0.0)
 ```
 
 ### Description
@@ -75,7 +75,9 @@ Starts the main loop in a separate thread. This loop will run the steps given, i
 
 - `steps` : a list of functions that should be executed in the loop. Each function should accept a single argument and return a single value which will be passed as an argument to the next function. The first function will receive `None` as an argument.
 
-- `stepped` (optional): a boolean value that determines whether the loop should run in stepped mode or not. Defaults to `False`.
+- `paused` (optional): a boolean value that determines whether the loop should run in paused step mode or not. Defaults to `False`.
+
+- `step_interval` (optional): a float value that determines the time interval between steps in seconds. Defaults to `0.0`.
 
 ### Returns
 
@@ -173,7 +175,7 @@ None
 ## Function `loop`
 
 ```python
-loop(steps, stepped=False, loop_data=None)
+loop(steps, paused=False, loop_data=None, step_interval=0.0)
 ```
 
 ### Description
@@ -184,9 +186,11 @@ Runs the step array in a loop until stopped.
 
 - `steps`: a list of functions that should be executed in the loop. Each function should accept a single argument and return a single value which will be passed as an argument to the next function. The first function will receive `None` as an argument.
 
-- `stepped` (optional): a boolean value that determines whether the loop should run in stepped mode or not. Defaults to `False`.
+- `paused` (optional): a boolean value that determines whether the loop should run in paused / stepped mode or not. Defaults to `False`.
 
 - `loop_data` (optional): a dictionary containing `stop_event` and `step_event` instances. If not provided, new events will be created.
+
+- `step_interval` (optional): a float value that determines the time interval between steps in seconds. Defaults to `0.0`.
 
 ### Returns
 

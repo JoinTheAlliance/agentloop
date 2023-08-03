@@ -6,8 +6,13 @@ def start(steps, paused=False, step_interval=0.0):
     Function to start the main loop
 
     Args:
+        steps: array of functions to be run in the loop
+
         paused: boolean - whether the loop should run automatically. If paused can be stepped one-step-at-a-time.
             Defaults to False.
+
+        step_interval: float - time in seconds to wait between steps. Defaults to 0.0 (no wait)
+
 
     Returns:
         loop_data: a dictionary of loop data
